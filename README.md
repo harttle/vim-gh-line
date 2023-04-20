@@ -1,8 +1,8 @@
 # vim-gh-line
 
- [![Build Status](https://travis-ci.org/ruanyl/vim-gh-line.svg?branch=master)](https://travis-ci.org/ruanyl/vim-gh-line)
+ [![Build Status](https://travis-ci.org/harttle/vim-gh-line.svg?branch=master)](https://travis-ci.org/harttle/vim-gh-line)
 
-A Vim plugin that opens a link to the current line on GitHub (and also supports Bitbucket, self-deployed GitHub, Googlesource, GitLab, and SourceHut).
+A Vim plugin that opens a link to the current line on GitHub (and also supports Bitbucket, self-deployed GitHub, Googlesource, GitLab, SourceHut, and Azure DevOps).
 
 ![gh-line](https://cloud.githubusercontent.com/assets/486382/10865375/142cd426-8012-11e5-92f8-44357b7acf9c.gif)
 
@@ -12,7 +12,7 @@ A Vim plugin that opens a link to the current line on GitHub (and also supports 
 Put this in your .vimrc
 
 ```vim
-Bundle 'ruanyl/vim-gh-line'
+Bundle 'harttle/vim-gh-line'
 ```
 
 Then restart vim and run `:BundleInstall`.

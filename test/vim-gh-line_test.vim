@@ -68,6 +68,22 @@ func! s:testGithub(sid)
     unlet g:gh_github_domain
 endfunction
 
+func! s:testAzureDevOps(sid)
+    call s:persistedPrint('Calling testAzureDevOps')
+
+    let l:act = s:callWithSID(a:sid, 'AzureDevOps',
+        \ 'https://my-org.visualstudio.com/DefaultCollection/my-project/_git/my-repo')
+    call assert_equal(1, l:act, 'AzureDevOps can parse AzureDevOps https remote correctly')
+
+    let l:act = s:callWithSID(a:sid, 'AzureDevOps',
+        \ 'my-org@vs-ssh.visualstudio.com:v3/my-org/my-project/my-repo')
+    call assert_equal(1, l:act, 'AzureDevOps can parse AzureDevOps ssh remote correctly')
+
+    let l:act = s:callWithSID(a:sid, 'AzureDevOps',
+        \ 'https://otherDomain.com/ruanyl/vim-gh-line.git')
+    call assert_equal(0, l:act, 'AzureDevOps can detect non-AzureDevOps domain.')
+endfunction
+
 func! s:testAction(sid)
     call s:persistedPrint('Calling testAction')
 
@@ -115,6 +131,20 @@ func! s:testGithubUrl(sid)
         \ 'ssh://git@github.com/ruanyl/vim-gh-line.git')
     call assert_equal('https://github.com/ruanyl/vim-gh-line', l:act,
         \ 'GithubUrl unexpected result with ssh protocol (ssh:// style)')
+endfunction
+
+func! s:testAzureDevOpsUrl(sid)
+    call s:persistedPrint('Calling testGithubUrl')
+
+    let l:act = s:callWithSID(a:sid, 'AzureDevOpsUrl',
+        \ 'https://my-org.visualstudio.com/DefaultCollection/my-project/_git/my-repo')
+    call assert_equal('https://my-org.visualstudio.com/DefaultCollection/my-project/_git/my-repo', l:act,
+        \ 'AzureDevOpsUrl unexpected result with https protocol')
+
+    let l:act = s:callWithSID(a:sid, 'AzureDevOpsUrl',
+        \ 'my-org@vs-ssh.visualstudio.com:v3/my-org/my-project/my-repo')
+    call assert_equal('https://my-org.visualstudio.com/my-project/_git/my-repo', l:act,
+        \ 'AzureDevOpsUrl unexpected result with ssh protocol (scp style)')
 endfunction
 
 func! s:testBitBucketUrl(sid)
@@ -277,10 +307,12 @@ func! s:runAllTests()
     call s:testUnrecognizedRemoteErrors(l:scriptID)
 
     call s:testGithub(l:scriptID)
+    call s:testAzureDevOps(l:scriptID)
     call s:testAction(l:scriptID)
     call s:testCommit(l:scriptID)
 
     call s:testGithubUrl(l:scriptID)
+    call s:testAzureDevOpsUrl(l:scriptID)
     call s:testBitBucketUrl(l:scriptID)
     call s:testGitLabUrl(l:scriptID)
     call s:testSrHtUrl(l:scriptID)

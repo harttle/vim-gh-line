@@ -67,11 +67,11 @@ if !exists('g:gh_always_interactive')
 endif
 
 func! s:gh_exec_cmd(url)
-    if get(g:, "gh_open_command", "") == ""
-        echom a:url
-        return
+    let l:open_command = "open "
+    if get(g:, "gh_open_command", "") != ""
+        let l:open_command = g:gh_open_command
     endif
-    let l:finalCmd = g:gh_open_command . a:url
+    let l:finalCmd = l:open_command . '"' . a:url . '"'
     if g:gh_trace
         echom "vim-gh-line executing: " . l:finalCmd
     endif
@@ -128,6 +128,8 @@ func! s:gh_line(action, force_interactive) range
       let url = s:GithubUrl(remote_url) . action . commit . relative . '#' . lineRange
     elseif s:GoogleSrc(remote_url)
       let url = s:GoogleSrcUrl(remote_url) . '/+/' . commit . relative . '#' . lineNum
+    elseif s:AzureDevOps(remote_url)
+      let url = s:AzureDevOpsUrl(remote_url) . '?path=' . relative . '&version=GC' . commit . '&line=' . lineNum . '&lineEnd=' . (lineNum + 1) . "&lineStartColumn=1&lineEndColumn=1"
     elseif s:Bitbucket(remote_url)
       let lineRange = s:BitbucketLineRange(a:firstline, a:lastline, lineNum)
       let url = s:BitBucketUrl(remote_url) . action . commit . relative . '#' . lineRange
@@ -263,6 +265,10 @@ func! s:GoogleSrc(remote_url)
   return match(a:remote_url, 'googlesource.com') >= 0
 endfunc
 
+func! s:AzureDevOps(remote_url)
+  return match(a:remote_url, 'visualstudio.com') >= 0
+endfunc
+
 func! s:Bitbucket(remote_url)
   return match(a:remote_url, 'bitbucket.org') >= 0
 endfunc
@@ -376,6 +382,20 @@ func! s:GoogleSrcUrl(remote_url)
   let l:rv = s:StripSuffix(l:rv, '.git')
 
   return l:rv
+endfunc
+
+" HTTPS: https://<org>.visualstudio.com/DefaultCollection/<project>/_git/<repo>
+" GIT: <org>@vs-ssh.visualstudio.com:v3/<org>/<project>/<repo>
+func! s:AzureDevOpsUrl(remote_url)
+  if stridx(a:remote_url, 'https://') == 0
+      return a:remote_url
+  else
+      let l:org = substitute(a:remote_url, '@.*', '', '')
+      let l:rv = substitute(a:remote_url, 'vs-ssh.visualstudio.com:v\d/[^/]*/\([^/]*\)/', l:org . '.visualstudio.com/\1/_git/', '')
+      let l:rv = s:TransformSSHToHTTPS(l:rv)
+      let l:rv = s:StripNL(l:rv)
+      return l:rv
+  endif
 endfunc
 
 func! s:BitBucketUrl(remote_url)
