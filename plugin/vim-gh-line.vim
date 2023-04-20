@@ -130,6 +130,9 @@ func! s:gh_line(action, force_interactive) range
       let url = s:GoogleSrcUrl(remote_url) . '/+/' . commit . relative . '#' . lineNum
     elseif s:AzureDevOps(remote_url)
       let url = s:AzureDevOpsUrl(remote_url) . '?path=' . relative . '&version=GC' . commit . '&line=' . lineNum . '&lineEnd=' . (lineNum + 1) . "&lineStartColumn=1&lineEndColumn=1"
+      if a:action == "blame"
+          let url = url .'&_a=blame'
+      endif
     elseif s:Bitbucket(remote_url)
       let lineRange = s:BitbucketLineRange(a:firstline, a:lastline, lineNum)
       let url = s:BitBucketUrl(remote_url) . action . commit . relative . '#' . lineRange
@@ -183,6 +186,8 @@ func! s:gh_repo() range
       if remote_ref != "master"
         let url_path = "/src/" . s:EscapedRemoteRef(remote_ref)
       endif
+    elseif s:AzureDevOps(remote_url)
+      let url = s:AzureDevOpsUrl(remote_url)
     elseif s:GitLab(remote_url)
       let url = s:GitLabUrl(remote_url)
     elseif s:SrHt(remote_url)
