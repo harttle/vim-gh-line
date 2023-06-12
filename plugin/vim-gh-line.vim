@@ -271,7 +271,7 @@ func! s:GoogleSrc(remote_url)
 endfunc
 
 func! s:AzureDevOps(remote_url)
-  return match(a:remote_url, 'visualstudio.com') >= 0
+  return match(a:remote_url, 'visualstudio.com') >= 0 || match(a:remote_url, 'dev.azure.com') >= 0
 endfunc
 
 func! s:Bitbucket(remote_url)
@@ -395,8 +395,9 @@ func! s:AzureDevOpsUrl(remote_url)
   if stridx(a:remote_url, 'https://') == 0
       return a:remote_url
   else
-      let l:org = substitute(a:remote_url, '@.*', '', '')
-      let l:rv = substitute(a:remote_url, 'vs-ssh.visualstudio.com:v\d/[^/]*/\([^/]*\)/', l:org . '.visualstudio.com/\1/_git/', '')
+      let l:org = substitute(a:remote_url, '[^/]*:v\d/', '', '')
+      let l:org = substitute(l:org, '/.*', '', '')
+      let l:rv = substitute(a:remote_url, '\(vs-ssh.visualstudio.com\|ssh.dev.azure.com\):v\d/[^/]*/\([^/]*\)/', l:org . '.visualstudio.com/\2/_git/', '')
       let l:rv = s:TransformSSHToHTTPS(l:rv)
       let l:rv = s:StripNL(l:rv)
       return l:rv

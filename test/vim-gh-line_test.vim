@@ -80,6 +80,10 @@ func! s:testAzureDevOps(sid)
     call assert_equal(1, l:act, 'AzureDevOps can parse AzureDevOps ssh remote correctly')
 
     let l:act = s:callWithSID(a:sid, 'AzureDevOps',
+        \ 'git@ssh.dev.azure.com:v3/my-org/my-project/my-repo')
+    call assert_equal(1, l:act, 'AzureDevOps can parse AzureDevOps azure.com ssh remote correctly')
+
+    let l:act = s:callWithSID(a:sid, 'AzureDevOps',
         \ 'https://otherDomain.com/ruanyl/vim-gh-line.git')
     call assert_equal(0, l:act, 'AzureDevOps can detect non-AzureDevOps domain.')
 endfunction
@@ -139,12 +143,17 @@ func! s:testAzureDevOpsUrl(sid)
     let l:act = s:callWithSID(a:sid, 'AzureDevOpsUrl',
         \ 'https://my-org.visualstudio.com/DefaultCollection/my-project/_git/my-repo')
     call assert_equal('https://my-org.visualstudio.com/DefaultCollection/my-project/_git/my-repo', l:act,
-        \ 'AzureDevOpsUrl unexpected result with https protocol')
+        \ 'AzureDevOpsUrl result with https protocol')
 
     let l:act = s:callWithSID(a:sid, 'AzureDevOpsUrl',
         \ 'my-org@vs-ssh.visualstudio.com:v3/my-org/my-project/my-repo')
     call assert_equal('https://my-org.visualstudio.com/my-project/_git/my-repo', l:act,
-        \ 'AzureDevOpsUrl unexpected result with ssh protocol (scp style)')
+        \ 'AzureDevOpsUrl result with ssh protocol (scp style)')
+
+    let l:act = s:callWithSID(a:sid, 'AzureDevOpsUrl',
+        \ 'git@ssh.dev.azure.com:v3/my-org/my-project/my-repo')
+    call assert_equal('https://my-org.visualstudio.com/my-project/_git/my-repo', l:act,
+        \ 'AzureDevOpsUrl result with ssh protocol on dev.azure.com (scp style)')
 endfunction
 
 func! s:testBitBucketUrl(sid)
